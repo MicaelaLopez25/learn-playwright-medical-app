@@ -9,23 +9,48 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "sqlite" // O tu base de datos
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Paciente {
   id        Int      @id @default(autoincrement())
+  nombre    String
   email     String   @unique
-  name      String?
+  telefono  String
+  password  String
+  turnos    Turno[]
   createdAt DateTime @default(now())
-  posts     Post[]
+  updatedAt DateTime @updatedAt
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
+model Medico {
+  id          Int         @id @default(autoincrement())
+  nombre      String
+  especialidad Especialidad @relation(fields: [especialidadId], references: [id])
+  especialidadId Int
+  turnos      Turno[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Especialidad {
+  id      Int      @id @default(autoincrement())
+  nombre  String   @unique
+  medicos Medico[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Turno {
+  id         Int      @id @default(autoincrement())
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+  pacienteId Int
+  medico     Medico   @relation(fields: [medicoId], references: [id])
+  medicoId   Int
+  fechaHora  DateTime @unique // Asegura que no haya turnos duplicados en el mismo horario
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([pacienteId, fechaHora]) // Evita que un paciente reserve múltiples turnos en el mismo horario
 }
