@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "npx prisma generate",
+    "prisma:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:db:create": "npx prisma db push",
     "prisma:studio": "npx prisma studio"
@@ -67,6 +68,7 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "tsconfig-paths": "^4.2.0",
     "vaul": "^1.1.2",
     "zod": "latest"
   },
@@ -79,6 +81,7 @@
     "postcss": "^8.5.3",
     "prisma": "^6.7.0",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

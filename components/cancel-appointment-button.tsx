@@ -40,7 +40,7 @@ export function CancelAppointmentButton({ appointmentId, appointmentDate }: Canc
   const handleCancel = async () => {
     setIsLoading(true)
     try {
-      await cancelAppointment(appointmentId)
+      await cancelAppointment(Number(appointmentId))
       toast({
         title: "Turno cancelado",
         description: "Tu turno ha sido cancelado exitosamente",

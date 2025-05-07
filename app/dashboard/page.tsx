@@ -41,14 +41,17 @@ export default async function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center text-sm">
                     <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{formatDate(appointment.date)}</span>
+                    <span>{formatDate(new Date(appointment.date).toISOString())}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <Clock className="h-4 w-4 mr-2 text-gray-500" />
                     <span>{appointment.time}</span>
                   </div>
 
-                  <CancelAppointmentButton appointmentId={appointment.id} appointmentDate={appointment.date} />
+                  <CancelAppointmentButton 
+                    appointmentId={String(appointment.id)}  
+                    appointmentDate={appointment.date}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -58,4 +61,3 @@ export default async function DashboardPage() {
     </div>
   )
 }
-

@@ -12,45 +12,54 @@ datasource db {
   provider = "sqlite" // O tu base de datos
   url      = env("DATABASE_URL")
 }
-
 model Paciente {
   id        Int      @id @default(autoincrement())
   nombre    String
   email     String   @unique
   telefono  String
   password  String
-  turnos    Turno[]
+  turnos    Turno[]  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Medico {
-  id          Int         @id @default(autoincrement())
-  nombre      String
+  id           Int          @id @default(autoincrement())
+  nombre       String
   especialidad Especialidad @relation(fields: [especialidadId], references: [id])
   especialidadId Int
-  turnos      Turno[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  turnos       Turno[]
+  appointments Appointment[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Especialidad {
-  id      Int      @id @default(autoincrement())
-  nombre  String   @unique
-  medicos Medico[]
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  medicos   Medico[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Turno {
-  id         Int      @id @default(autoincrement())
-  paciente   Paciente @relation(fields: [pacienteId], references: [id])
-  pacienteId Int
-  medico     Medico   @relation(fields: [medicoId], references: [id])
-  medicoId   Int
-  fechaHora  DateTime @unique // Asegura que no haya turnos duplicados en el mismo horario
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  paciente    Paciente @relation(fields: [pacienteId], references: [id])
+  pacienteId  Int
+  medico      Medico   @relation(fields: [medicoId], references: [id])
+  medicoId    Int
+  fecha       DateTime // Fecha del turno (sin hora)
+  hora        String   // Hora del turno (ej. "14:00")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([pacienteId, fechaHora]) // Evita que un paciente reserve múltiples turnos en el mismo horario
+  @@unique([pacienteId, fecha, hora]) // Evita que un paciente reserve múltiples turnos a la misma hora
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  medicoId  Int
+  date      DateTime // Fecha del turno (sin hora)
+  timeSlot  String   // Hora del turno (ej. "14:00")
+  medico    Medico   @relation(fields: [medicoId], references: [id])
 }

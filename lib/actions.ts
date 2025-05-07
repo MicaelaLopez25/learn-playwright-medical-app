@@ -4,55 +4,10 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { PrismaClient } from "@prisma/client";
-
 import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient();
 
-// Simulación de base de datos
-const users: any[] = [];
-const appointments: any[] = [];
-const specialties = [
-  { id: "dermatologia", name: "Dermatología" },
-  { id: "cardiologia", name: "Cardiología" },
-  { id: "pediatria", name: "Pediatría" },
-  { id: "traumatologia", name: "Traumatología" },
-];
-const doctors = [
-  { id: "doc1", name: "María García", specialtyId: "dermatologia" },
-  { id: "doc2", name: "Juan Pérez", specialtyId: "cardiologia" },
-  { id: "doc3", name: "Ana Rodríguez", specialtyId: "pediatria" },
-  { id: "doc4", name: "Carlos López", specialtyId: "traumatologia" },
-];
-
-// Función para generar horarios disponibles (simulación)
-function generateTimeSlots(doctorId: string, date: Date) {
-  // Simulamos que algunos horarios ya están ocupados
-  const bookedSlots = appointments
-    .filter(
-      (a) =>
-        a.doctorId === doctorId &&
-        new Date(a.date).toDateString() === date.toDateString()
-    )
-    .map((a) => a.time);
-
-  const allSlots = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-  ];
-
-  return allSlots.filter((slot) => !bookedSlots.includes(slot));
-}
 
 // Acciones del servidor
 export async function registerUser({ name, email, phone, password }: {
@@ -117,57 +72,60 @@ export async function logoutUser() {
 }
 
 export async function getSpecialties() {
-  return await prisma.especialidad.findMany();
-}
-
-export async function getDoctorsBySpecialty(specialtyId: number) {
-  return await prisma.medico.findMany({
-    where: {
-      especialidadId: specialtyId,
+  return await prisma.especialidad.findMany({
+    select: {
+      id: true,
+      nombre: true,
     },
   });
 }
 
+export async function getDoctorsBySpecialty(especialidadId: number) {
+  return await prisma.medico.findMany({
+    where: {
+      especialidadId,
+    },
+    select: {
+      id: true,
+      nombre: true,
+    },
+  });
+}
 export async function getAvailableTimeSlots(medicoId: number, date: Date) {
   const allSlots = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
   ];
+  
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
-
+  
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
 
-  const appointments = await prisma.turno.findMany({
+  const turnos = await prisma.turno.findMany({
     where: {
       medicoId,
-      fechaHora: {
+      fecha: {
         gte: startOfDay,
-        lte: endOfDay,
+        lt: endOfDay,
       },
     },
+    select: {
+      hora: true,
+    },
   });
-  const bookedSlots = appointments.map((a: { fechaHora: { toTimeString: () => string; }; }) =>
-    a.fechaHora.toTimeString().substring(0, 5)
-  );
 
-  return allSlots.filter((slot) => !bookedSlots.includes(slot));
+  const bookedSlots = turnos.map((t) => t.hora);
+
+  const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+
+  return availableSlots;
 }
 
 export async function createAppointment(data: {
-  specialtyId: number;
-  doctorId: number;
+  especialidadId: number;
+  medicoId: number;
   date: Date;
   timeSlot: string;
 }) {
@@ -177,50 +135,78 @@ export async function createAppointment(data: {
   }
 
   const [hours, minutes] = data.timeSlot.split(":").map(Number);
+  if (isNaN(hours) || isNaN(minutes)) {
+    throw new Error("Formato de horario inválido.");
+  }
+
   const dateTime = new Date(data.date);
   dateTime.setHours(hours, minutes, 0, 0);
 
+  // Verifica si ya existe un turno en ese horario para ese paciente
   const existing = await prisma.turno.findFirst({
     where: {
       pacienteId: session.userId,
-      fechaHora: dateTime,
+      fecha: data.date,
+      hora: data.timeSlot,
     },
   });
 
   if (existing) {
-    throw new Error("Ya tienes un turno reservado en este horario.");
+    throw new Error("Ya tenés un turno reservado en este horario.");
   }
 
-  const availableSlots = await getAvailableTimeSlots(data.doctorId, data.date);
+  // Verifica si el horario está disponible para ese médico
+  const availableSlots = await getAvailableTimeSlots(data.medicoId, data.date);
   if (!availableSlots.includes(data.timeSlot)) {
-    throw new Error("El horario seleccionado ya no está disponible");
+    throw new Error("El horario seleccionado ya no está disponible.");
   }
 
   await prisma.turno.create({
     data: {
       pacienteId: session.userId,
-      medicoId: data.doctorId,
-      fechaHora: dateTime,
+      medicoId: data.medicoId,
+      fecha: new Date(data.date),
+      hora: data.timeSlot,
     },
   });
 
-  revalidatePath("/dashboard");
+  revalidatePath("");
   return { success: true };
 }
 
 
-export async function getUserAppointments() {
-  const session = JSON.parse((await cookies()).get("session")?.value || "{}");
-  if (!session.userId) return [];
 
-  return await prisma.turno.findMany({
-    where: { pacienteId: session.userId },
+
+export async function getUserAppointments() {
+  const session = (await cookies()).get("session");
+  if (!session) throw new Error("No hay sesión activa");
+
+  const data = JSON.parse(session.value);
+  const user = await prisma.paciente.findUnique({ where: { id: data.userId } });
+  if (!user) throw new Error("Usuario no encontrado");
+
+  // Obtener los turnos del paciente con la información relacionada al médico y la especialidad
+  const appointments = await prisma.turno.findMany({
+    where: { pacienteId: user.id },
     include: {
-      medico: { include: { especialidad: true } },
+      medico: {
+        include: {
+          especialidad: true,  // Asegúrate de incluir la especialidad
+        },
+      },
     },
-    orderBy: { fechaHora: "asc" },
   });
+
+  // Mapear los turnos a un formato que se pueda usar en la interfaz
+  return appointments.map((appointment) => ({
+    id: appointment.id,
+    specialty: appointment.medico.especialidad.nombre,  // Nombre de la especialidad
+    doctorName: `${appointment.medico.nombre} `,  // Nombre completo del médico
+    date: appointment.fecha,  // Fecha del turno
+    time: appointment.hora,  // Hora del turno
+  }));
 }
+
 
 export async function cancelAppointment(appointmentId: number) {
   const session = JSON.parse((await cookies()).get("session")?.value || "{}");
@@ -235,7 +221,11 @@ export async function cancelAppointment(appointmentId: number) {
   }
 
   const now = new Date();
-  const diffInHours = (turno.fechaHora.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const turnoDateTime = new Date(turno.fecha);
+  const [hours, minutes] = turno.hora.split(":").map(Number);
+  turnoDateTime.setHours(hours, minutes, 0, 0);
+
+  const diffInHours = (turnoDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
   if (diffInHours < 24) {
     throw new Error("No se puede cancelar un turno con menos de 24 horas de anticipación");
@@ -247,4 +237,10 @@ export async function cancelAppointment(appointmentId: number) {
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function getCurrentUser() {
+  const session = JSON.parse((await cookies()).get("session")?.value || "{}");
+  if (!session.userId) return null;
+  return await prisma.paciente.findUnique({ where: { id: session.userId } });
 }
