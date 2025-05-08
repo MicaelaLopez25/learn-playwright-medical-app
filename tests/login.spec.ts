@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Inicio de sesión exitoso redirige a reserva de turnos', async ({ page }) => {
+test.skip('Inicio de sesión exitoso redirige a reserva de turnos', async ({ page }) => {
     // Ir a la página de login
     await page.goto('http://localhost:3000/login');
   

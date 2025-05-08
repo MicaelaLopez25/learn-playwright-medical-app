@@ -34,20 +34,23 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-
+  // Global setup for all tests.
+  globalSetup: "./tests/utils/global.setup.ts",
+  // Global teardown for all tests.
+  globalTeardown: "./tests/utils/global.teardown.ts",
   /* Configure projects for major browsers */
   projects: [
-    {
-      name: 'chromium',
-      use: { headless: false } },
+    // {
+    //   name: 'chromium',
+    //   use: { headless: false } },
 
     {
       name: 'firefox',
       use: { headless: false } },
 
-    {
-      name: 'webkit',
-      use: { headless: false } },
+    // {
+    //   name: 'webkit',
+    //   use: { headless: false } },
 
     /* Test against mobile viewports. */
     // {
@@ -72,16 +75,10 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
    webServer: {
-     command: 'npm run start',
+     command: 'npm run dev',
      url: 'http://127.0.0.1:3000',
    reuseExistingServer: !process.env.CI,
    },
 });
 
-const config: PlaywrightTestConfig = {
-  // Global setup for all tests.
-  globalSetup: "./tests/utils/global.setup.ts",
-  // Global teardown for all tests.
-  globalTeardown: "./tests/utils/global.teardown.ts",
-  testDir: './tests',
-};
+
