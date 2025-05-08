@@ -85,6 +85,7 @@ export default function ReservarTurnoPage() {
   Reservar Turno
 </h1>
 <p data-testid="debug-carga">Componente cargado</p>
+ 
       <h1 className="text-2xl font-bold mb-4">Reservar Turno</h1>
 
       <div className="mb-4">
