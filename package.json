@@ -13,6 +13,7 @@
     "lint": "next lint",
     "prisma:generate": "npx prisma generate",
     "prisma:seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "prisma:eliminar-turnos": "npx tsx prisma/seed-eliminar-turnos.ts",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:db:create": "npx prisma db push",
     "prisma:studio": "npx prisma studio"
@@ -53,6 +54,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "^3.2.0",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "jsonwebtoken": "^9.0.2",
