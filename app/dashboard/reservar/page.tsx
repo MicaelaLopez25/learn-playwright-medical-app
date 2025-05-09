@@ -17,9 +17,9 @@ export default function ReservarTurnoPage() {
   const [medicos, setMedicos] = useState<OpcionSimple[]>([]);
   const [medicoId, setMedicoId] = useState<number | null>(null);
 
-  const [fecha, setFecha] = useState<string>(""); // formato YYYY-MM-DD
+  const [fecha, setFecha] = useState(""); // formato YYYY-MM-DD
   const [horarios, setHorarios] = useState<string[]>([]); // solo horarios, ej. "14:00"
-  const [horarioSeleccionado, setHorarioSeleccionado] = useState<string | null>(null);
+  const [horarioSeleccionado, setHorarioSeleccionado] = useState("");
 
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
@@ -59,14 +59,16 @@ export default function ReservarTurnoPage() {
     setMensaje(null);
 
     try {
-      const dateObj = new Date(fecha);
-      
+      //const dateObj = new Date(fecha);
+      const [year, month, day] = fecha.split("-").map(Number);
+      const dateObj = new Date(year!, month! - 1, day!); // mes -1 porque en JS empieza en 0
+
       
       // Enviar la fecha y la hora al backend
       await createAppointment({
         especialidadId,
         medicoId,
-        date: new Date(fecha), // ✅ convertir string a Date
+        date: dateObj, 
         timeSlot: horarioSeleccionado,
       });
       
@@ -127,11 +129,7 @@ export default function ReservarTurnoPage() {
       onChange={(e) => setFecha(e.target.value)}
       className="w-full border rounded px-2 py-1"
     />
-    {fecha && (
-      <p className="mt-2 text-sm text-gray-600">
-        Fecha seleccionada: {new Date(fecha).toLocaleDateString("es-AR")}
-      </p>
-    )}
+    
   </div>
 )}
 
