@@ -20,6 +20,8 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [loginError, setLoginError] = useState("");
+
   const router = useRouter()
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -31,27 +33,29 @@ export default function LoginPage() {
   })
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
-    setIsLoading(true)
+    setIsLoading(true);
+    setLoginError("");
     try {
       await loginUser({
         email: values.email,
         password: values.password,
-      })
+      });
 
       toast({
         title: "Inicio de sesión exitoso",
         description: "Has iniciado sesión correctamente",
-      })
+      });
 
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
+      setLoginError("Email o contraseña incorrectos");
       toast({
         title: "Error al iniciar sesión",
         description: "Email o contraseña incorrectos",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -83,7 +87,12 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="ejemplo@correo.com" {...field} />
+                        <Input type="email" placeholder="ejemplo@correo.com" {...field} 
+                        onChange={(e) => {
+                          setLoginError("");
+                          field.onChange(e);
+                        }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -97,7 +106,12 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" {...field} 
+                         onChange={(e) => {
+                          setLoginError("");
+                          field.onChange(e);
+                        }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -107,9 +121,14 @@ export default function LoginPage() {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
+                
               </form>
-            </Form>
+              {loginError && (
+  <p className="text-red-500 text-sm text-center">{loginError}</p>
+)}
 
+            </Form>
+            
             <div className="mt-6 text-center text-sm">
               ¿No tienes una cuenta?{" "}
               <Link href="/register" className="text-teal-600 hover:underline font-medium">
