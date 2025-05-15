@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
+test('registro sin nombre, error', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Registrarse' }).click();
   await page.getByRole('textbox', { name: 'Email' }).click();
@@ -13,5 +13,6 @@ test('test', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Confirmar contraseña' }).fill('jkhan13#');
   await page.getByRole('button', { name: 'Registrarse' }).click();
   await page.getByText('El nombre debe tener al menos').click();
+  await expect(page.getByText('El nombre debe tener al menos 2 caracteres')).toBeVisible();
   
 });

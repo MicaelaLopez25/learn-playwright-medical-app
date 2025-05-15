@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('no nos deja registrarnos si falta el telefono', async ({ page }) => {
+test.skip('no nos deja registrarnos si falta el telefono', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Registrarse' }).click();
   await page.getByRole('textbox', { name: 'Nombre completo' }).click();

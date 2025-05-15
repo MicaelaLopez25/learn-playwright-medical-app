@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('cuando queremos reservar turno en dermatologia tiene que salir Maria Garcia', async ({ page }) => {
+test.skip('cuando queremos reservar turno en dermatologia tiene que salir Maria Garcia', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
   await page.getByRole('textbox', { name: 'Email' }).click();

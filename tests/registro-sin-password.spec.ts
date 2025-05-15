@@ -15,4 +15,6 @@ test('registre a un nuevo para sacarle el gmail y asi a la hora de registrarlo q
   await page.getByRole('textbox', { name: 'Confirmar contraseña' }).fill('lololo');
   await page.getByRole('button', { name: 'Registrarse' }).click();
   await page.getByText('Ingrese un email válido').click();
+  await expect(page.getByText('Ingrese un email válido')).toBeVisible();
+ 
 });

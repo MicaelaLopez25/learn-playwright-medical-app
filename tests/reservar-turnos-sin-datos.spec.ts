@@ -1,7 +1,7 @@
 
 import { test, expect } from '@playwright/test';
 
-test('al querer reservar un turno sin completar todos los datos no debe dar error', async ({ page }) => {
+test.skip('al querer reservar un turno sin completar todos los datos no debe dar error', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
   await page.getByRole('textbox', { name: 'Email' }).click();

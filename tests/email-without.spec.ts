@@ -9,4 +9,5 @@ test('al iniciar sesion solamente con la contraseña devuelve error al no usar e
   await page.getByRole('button', { name: 'Iniciar sesión' }).press('Enter');
   await page.getByRole('button', { name: 'Iniciar sesión' }).press('Enter');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page.getByText('Ingrese un email válido')).toBeVisible(); 
 });

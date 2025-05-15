@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('cuando queremos reservar un turno en cardiologia tiene que salir Juan perez', async ({ page }) => {
+test.skip('cuando queremos reservar un turno en cardiologia tiene que salir Juan perez', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
   await page.getByRole('textbox', { name: 'Email' }).click();

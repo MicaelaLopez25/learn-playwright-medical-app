@@ -14,4 +14,5 @@ test('al intentar crear un usuario con una contraseña menor a 6 caracters da er
   await page.getByRole('textbox', { name: 'Confirmar contraseña' }).click();
   await page.getByRole('textbox', { name: 'Confirmar contraseña' }).fill('1234');
   await page.getByRole('button', { name: 'Registrarse' }).click();
+  await expect(page.getByText('La contraseña debe tener al menos 6 caracteres')).toBeVisible(); 
 });

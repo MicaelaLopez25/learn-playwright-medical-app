@@ -10,4 +10,5 @@ test('inicio sesion y con un usuario ya regristrado, me aparece en el header', a
   await page.getByRole('textbox', { name: 'Contraseña' }).press('Tab');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await page.getByText('Hola, juan lopez').click();
+  await expect(page.getByText('Hola, juan lopez')).toBeVisible(); 
 });

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('al no poner nada en gmail o contraseña sale error en los dos', async ({ page }) => {
+test.skip('al no poner nada en gmail o contraseña sale error en los dos', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();

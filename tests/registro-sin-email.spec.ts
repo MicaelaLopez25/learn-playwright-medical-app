@@ -15,4 +15,6 @@ test('al querer registrarme sin email me sale error', async ({ page }) => {
   await page.getByRole('button', { name: 'Registrarse' }).click();
   await page.getByText('EmailIngrese un email válido').click();
   await page.getByText('Ingrese un email válido').click();
+  await expect(page.getByText('Ingrese un email válido')).toBeVisible();
+
 });

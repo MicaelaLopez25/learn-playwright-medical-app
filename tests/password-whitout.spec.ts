@@ -6,4 +6,5 @@ test('al intentar inciar sesion sin contraseña da error ', async ({ page }) => 
   await page.getByRole('textbox', { name: 'Email' }).click();
   await page.getByRole('textbox', { name: 'Email' }).fill('lopez@gmail.com');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page.getByText('La contraseña es requerida')).toBeVisible(); 
 });

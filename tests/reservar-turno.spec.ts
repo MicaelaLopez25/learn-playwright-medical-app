@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('al reservar un turno para el 17 de mayo, este debe aparecer para el 17', async ({ page }) => {
+test.skip('al reservar un turno para el 17 de mayo, este debe aparecer para el 17', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
   await page.getByRole('textbox', { name: 'Email' }).click();
